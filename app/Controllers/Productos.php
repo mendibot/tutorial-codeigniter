@@ -12,13 +12,26 @@ class Productos extends BaseController
     }
     public function index()
     {
-        // $db = \Config\Database::connect();
+        $db = \Config\Database::connect();
 
-        // $query = $db->query("SELECT codigo, nombre, stock FROM productos");
-        // $resultado = $query->getResult();
+        $condicion = "estatus = 1 OR stock > 5";
 
-        $productModel = new ProductosModel();
-        $resultado =  $productModel->findAll();
+        // $query = $db->table('productos')
+        // ->select('id, codigo, nombre, stock')
+        // ->where($condicion)
+        // ->orderBy('nombre', 'asc')
+        // ->limit(1)
+        // ->get();
+
+        $sql = $db->table('productos');
+        $sql->select('productos.id, productos.codigo, productos.nombre, productos.stock, almacen.nombre AS almacen');
+        $sql->join('almacen', 'productos.id_almacen =almacen.id', 'left');
+        $query = $sql->get();
+        $resultado = $query->getResultArray();
+        echo $db->getLastQuery();
+
+        // $productModel = new ProductosModel();
+        // $resultado =  $productModel->where('estatus', 1)->findAll();
 
         $data = ['titulo' => 'Catalogo de productos', 'productos' => $resultado];
         return view('productos/index', $data);
